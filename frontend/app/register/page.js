@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +24,8 @@ export default function Register() {
       });
 
       if (!response.ok) {
-        throw new Error("Kunde inte skapa användare");
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || "Kunde inte skapa användare");
       }
 
       router.push("/login");
@@ -60,6 +62,7 @@ export default function Register() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="border rounded px-3 py-2"
+            minLength={8}
             required
           />
         </div>

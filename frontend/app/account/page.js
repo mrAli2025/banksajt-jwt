@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../AuthContext";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 const FEATURE_NEW_DASHBOARD = process.env.NEXT_PUBLIC_FEATURE_NEW_DASHBOARD === "true";
 
@@ -13,12 +14,11 @@ export default function Account() {
   const [error, setError] = useState("");
   const [withdrawalError, setWithdrawalError] = useState("");
   const router = useRouter();
+  const { accessToken, logout } = useAuth();
 
   useEffect(() => {
     const fetchBalance = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
+      if (!accessToken) {
         router.push("/login");
         return;
       }
@@ -27,9 +27,9 @@ export default function Account() {
         const response = await fetch(`${API_URL}/me/accounts`, {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token }),
         });
 
         if (!response.ok) {
@@ -44,21 +44,20 @@ export default function Account() {
     };
 
     fetchBalance();
-  }, [router]);
+  }, [accessToken, router]);
 
   const handleDeposit = async (e) => {
     e.preventDefault();
     setError("");
 
-    const token = localStorage.getItem("token");
-
     try {
       const response = await fetch(`${API_URL}/me/accounts/transactions`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token: token, amount: Number(deposit) }),
+        body: JSON.stringify({ amount: Number(deposit) }),
       });
 
       if (!response.ok) {
@@ -77,15 +76,14 @@ export default function Account() {
     e.preventDefault();
     setWithdrawalError("");
 
-    const token = localStorage.getItem("token");
-
     try {
       const response = await fetch(`${API_URL}/me/accounts/withdrawals`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token: token, amount: Number(withdrawal) }),
+        body: JSON.stringify({ amount: Number(withdrawal) }),
       });
 
       if (!response.ok) {
@@ -100,10 +98,23 @@ export default function Account() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 dark:bg-black px-4">
       <div className="flex flex-col gap-6 w-full max-w-sm bg-white dark:bg-zinc-900 p-8 rounded-lg shadow">
-        <h1 className="text-2xl font-semibold text-center">Mitt konto</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Mitt konto</h1>
+          <button
+            onClick={handleLogout}
+            className="text-sm font-medium underline underline-offset-4"
+          >
+            Logga ut
+          </button>
+        </div>
 
         {FEATURE_NEW_DASHBOARD && (
           <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-200">

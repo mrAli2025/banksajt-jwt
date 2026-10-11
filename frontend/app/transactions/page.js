@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../AuthContext";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 function formatDate(dateString) {
@@ -17,12 +18,11 @@ export default function Transactions() {
   const [transactions, setTransactions] = useState(null);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { accessToken } = useAuth();
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
+      if (!accessToken) {
         router.push("/login");
         return;
       }
@@ -31,9 +31,9 @@ export default function Transactions() {
         const response = await fetch(`${API_URL}/me/transactions`, {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ token }),
         });
 
         if (!response.ok) {
@@ -48,7 +48,7 @@ export default function Transactions() {
     };
 
     fetchTransactions();
-  }, [router]);
+  }, [accessToken, router]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 dark:bg-black px-4 py-12">

@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../AuthContext";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +31,8 @@ export default function Login() {
 
       const data = await response.json();
 
-      // Spara token så att kontosidan kan använda den
-      localStorage.setItem("token", data.token);
+      // Spara token i React state (inte localStorage)
+      login(data.token);
 
       router.push("/account");
     } catch (err) {
