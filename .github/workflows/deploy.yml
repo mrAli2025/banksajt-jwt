@@ -104,10 +104,14 @@ jobs:
             -d '{"username": "debuguser", "password": "debug1234"}' \
             --max-time 10
 
+            
+
       - name: Kör Playwright-tester
         working-directory: ./frontend
         run: npx playwright test
-
+      - name: Debug - express-loggar
+        if: always()
+        run: docker compose -f docker-compose.test.yml logs express-test
       - name: Ladda upp testrapport vid fel
         if: failure()
         uses: actions/upload-artifact@v4
