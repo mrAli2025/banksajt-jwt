@@ -97,6 +97,13 @@ jobs:
           docker compose -f docker-compose.test.yml logs
           exit 1
 
+      - name: Debug - testa /users direkt
+        run: |
+          curl -v -X POST http://127.0.0.1:3011/users \
+            -H "Content-Type: application/json" \
+            -d '{"username": "debuguser", "password": "debug1234"}' \
+            --max-time 10
+
       - name: Kör Playwright-tester
         working-directory: ./frontend
         run: npx playwright test
