@@ -4,7 +4,8 @@ services:
       context: ./frontend
       args:
         NEXT_PUBLIC_FEATURE_NEW_DASHBOARD: "true"
-        NEXT_PUBLIC_API_URL: "http://localhost:3011"
+        # NEXT_PUBLIC_API_URL: "http://localhost:3011"
+        NEXT_PUBLIC_API_URL: "http://127.0.0.1:3011"
     ports:
       - "3002:3000"
 
